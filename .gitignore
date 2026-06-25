@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+backend/.env
+backend/.venv
+
+# Local data store (regenerated at runtime)
+backend/app/data/store.json
+
+# Node
+frontend/node_modules/
+node_modules/
+frontend/package-lock.json
+frontend/dist/
+
+# OS / editor
+.DS_Store
+.vscode/
