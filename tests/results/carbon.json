@@ -1,0 +1,175 @@
+{
+  "category": "carbon",
+  "assumptions": {
+    "kwh_per_1k_tokens_frontier": 0.0003,
+    "kwh_per_1k_tokens_slm": 3e-05,
+    "grids_gco2_per_kwh": {
+      "France": 60,
+      "EU_avg": 250,
+      "US_avg": 380
+    },
+    "MAU": 10000,
+    "tasks_per_user_per_month": {
+      "match_score": 20,
+      "daily_moves": 22,
+      "coach_turn": 30,
+      "gmail_scan": 22
+    },
+    "tokens": "REAL meta.tokens_used from Gemini usage_metadata",
+    "repeats_per_task": 2
+  },
+  "per_task": [
+    {
+      "task": "match_score",
+      "model": "gemini-2.5-flash",
+      "calls": 1,
+      "tokens_per_task": 1791,
+      "token_samples": [
+        1920,
+        1662
+      ],
+      "methods": [
+        "agent",
+        "agent"
+      ],
+      "kwh_per_task": 0.0005373,
+      "gco2_per_task": {
+        "France": 0.0322,
+        "EU_avg": 0.1343,
+        "US_avg": 0.2042
+      }
+    },
+    {
+      "task": "daily_moves",
+      "model": "gemini-2.5-flash",
+      "calls": 1,
+      "tokens_per_task": 1612,
+      "token_samples": [
+        1595,
+        1629
+      ],
+      "methods": [
+        "agent",
+        "agent"
+      ],
+      "kwh_per_task": 0.0004836,
+      "gco2_per_task": {
+        "France": 0.029,
+        "EU_avg": 0.1209,
+        "US_avg": 0.1838
+      }
+    },
+    {
+      "task": "coach_turn",
+      "model": "gemini-2.5-flash",
+      "calls": "1-3 (ReAct)",
+      "tokens_per_task": 590,
+      "token_samples": [
+        1181,
+        0
+      ],
+      "methods": [
+        "agent",
+        "fallback"
+      ],
+      "kwh_per_task": 0.000177,
+      "gco2_per_task": {
+        "France": 0.0106,
+        "EU_avg": 0.0442,
+        "US_avg": 0.0673
+      }
+    },
+    {
+      "task": "gmail_scan",
+      "model": "gemini-2.5-flash",
+      "calls": "1+N",
+      "tokens_per_task": 0,
+      "kwh_per_task": 0.0,
+      "gco2_per_task": {
+        "France": 0.0,
+        "EU_avg": 0.0,
+        "US_avg": 0.0
+      }
+    }
+  ],
+  "gmail_scan": {
+    "task": "gmail_scan",
+    "available": true,
+    "tokens": 0,
+    "method": "fallback",
+    "errors": [
+      "ImportError: cannot import name 'streamable_http_client' from 'mcp.client.streamable_http' (C:\\Users\\joshu\\Academic Projecr\\ResumeTracker\\Resume Tracker\\backend\\.venv\\Lib\\site-packages\\mcp\\client\\streamable_http.py)"
+    ]
+  },
+  "monthly_projection": {
+    "match_score": {
+      "tasks_per_month": 200000,
+      "tokens_per_month": 358200000,
+      "kwh_per_month": 107.46,
+      "gco2_per_month": {
+        "France": 6448,
+        "EU_avg": 26865,
+        "US_avg": 40835
+      }
+    },
+    "daily_moves": {
+      "tasks_per_month": 220000,
+      "tokens_per_month": 354640000,
+      "kwh_per_month": 106.392,
+      "gco2_per_month": {
+        "France": 6384,
+        "EU_avg": 26598,
+        "US_avg": 40429
+      }
+    },
+    "coach_turn": {
+      "tasks_per_month": 300000,
+      "tokens_per_month": 177000000,
+      "kwh_per_month": 53.1,
+      "gco2_per_month": {
+        "France": 3186,
+        "EU_avg": 13275,
+        "US_avg": 20178
+      }
+    },
+    "gmail_scan": {
+      "tasks_per_month": 220000,
+      "tokens_per_month": 0,
+      "kwh_per_month": 0.0,
+      "gco2_per_month": {
+        "France": 0,
+        "EU_avg": 0,
+        "US_avg": 0
+      }
+    }
+  },
+  "monthly_total": {
+    "tokens_per_month": 889840000,
+    "kwh_per_month": 266.95,
+    "kg_co2_per_month": {
+      "France": 16.0,
+      "EU_avg": 66.7,
+      "US_avg": 101.4
+    }
+  },
+  "slm_substitution": {
+    "substituted_call": "match_score (fit scoring)",
+    "measured_tokens_per_task": 1791,
+    "frontier": {
+      "model": "gemini-2.5-flash",
+      "gco2_per_month_France": 6448
+    },
+    "slm": {
+      "model": "fine-tuned 1-3B SLM (Phi-3-mini / Llama-3.2-3B)",
+      "gco2_per_month_France": 645
+    },
+    "energy_reduction_pct": 90.0,
+    "quality_tradeoff": "Fit scoring is schema-bound (0-100 + matched/missing skills); a small fine-tuned model should keep ~90-95% of ranking quality. Keep the frontier model only for open-ended coach chat. The existing heuristic scorer is the 0-energy floor already in prod."
+  },
+  "_meta": {
+    "mode": "online-live",
+    "model": "gemini-2.5-flash",
+    "langsmith_project": "resume-tracker",
+    "live": true
+  }
+}
