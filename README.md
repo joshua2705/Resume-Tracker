@@ -9,37 +9,61 @@ backend (parsing, scoring, storage, coach) + **React/Vite** frontend (hand-drawn
 UI). Runs **fully offline** out of the box (mock parser + heuristic scoring) and
 upgrades to **LlamaParse + Gemini** by adding two keys.
 
+The AI features are now driven by an **agentic layer built on LangGraph**: four
+single-responsibility agents (job-match scoring, daily "moves", a tool-using
+coach, and a Gmail inbox tracker) sit behind the existing endpoints. Agents are
+fully optional — without the agent packages or keys, every route falls back to
+the original heuristic/Gemini path and the app still runs offline. See
+[`backend/AGENTS.md`](backend/AGENTS.md) for the design and
+[`backend/SETUP_AGENTS.md`](backend/SETUP_AGENTS.md) for setup.
+
 ## Screens
 
 | Tab | What it does |
 | --- | --- |
-| **Dashboard** | Greets you by name, summarizes stats, and the AI coach lists your "moves for today". |
+| **Dashboard** | Greets you by name, summarizes stats, and lists your 3 "moves for today" — produced by the **moves agent**, which only recomputes when your skills, experience, or tracker actually change (otherwise it serves a cache). |
 | **Resumes** | Upload many resumes (cards); one is **active**. Editable skills/experience **mind map** below — click any node to edit; experiences show the title and open full details on click. |
-| **Jobs** | Hardcoded tech entry-level roles. Click one → AI evaluates your fit score vs the active resume. **Apply** (adds to tracker) or **Tailor my resume** (placeholder). |
-| **Tracker** | Drag cards between stages. **Auto-Track with Gmail** toggle (top-left, placeholder). Each card has **Prep with AI Coach** → pick HR / Hiring Manager / Team Fit → questions drafted from the JD. |
-| **AI Coach** | Chat with a Gemini-backed coach that knows your resume + pipeline. Mock interviews, resume review, fit advice. |
+| **Jobs** | Hardcoded tech entry-level roles. Click one → the **match agent** evaluates your fit score vs the active resume. **Apply** (adds to tracker) or **Tailor my resume** (placeholder). |
+| **Tracker** | Drag cards between stages. **Auto-Track with Gmail** toggle (top-left) flags a job for the **Gmail agent**, which scans your inbox daily and auto-advances statuses. Each card has **Prep with AI Coach** → pick HR / Hiring Manager / Team Fit → questions drafted from the JD. |
+| **AI Coach** | Chat with the **coach agent** (LangGraph ReAct) — it decides on its own which tools to call (your skills, experience, tracked jobs, or a specific JD). Guardrails validate input and rate-limit token usage. Mock interviews, resume review, fit advice. |
 
 ## Architecture
 
 ```
 backend/app/
-  main.py            FastAPI app + router wiring
-  config.py          env flags (keys → feature toggles)
+  main.py            FastAPI app + router wiring + lifespan (LangSmith, scheduler)
+  config.py          env flags (keys → feature toggles, incl. agents/Gmail/guardrails)
   models.py          Pydantic shapes (Resume, Job, Score, Coach…)
-  store.py           JSON persistence + migration from old shape
+  store.py           JSON persistence + migration; agent_state (moves cache, gmail log)
   catalog.py         hardcoded job catalog
   services/
     parser.py        ResumeParser: Mock | LlamaParse (PDF→md→Gemini→JSON)
-    llm.py           LLMService: Heuristic | Gemini (score, questions, coach)
+    llm.py           LLMService: Heuristic | Gemini (score, questions, coach) — fallback
+  agents/            LangGraph agentic layer
+    schemas.py       JSON envelopes every agent speaks (AgentEnvelope + payloads)
+    runtime.py       Gemini chat model, LangSmith setup, timing/token helpers
+    tools.py         store-backed LangChain tools for the coach
+    mcp_client.py    Gmail MCP → LangChain tools (langchain-mcp-adapters)
+    match_agent.py   graph: prepare → score              (MatchResult)
+    moves_agent.py   graph: detect_change → generate/cache (MovesResult)
+    coach_agent.py   prebuilt ReAct agent + tools          (CoachResult)
+    gmail_agent.py   ReAct + Gmail MCP, applies tracker updates (GmailScanResult)
+    orchestrator.py  the ONE dispatcher routers call (agent vs fallback)
+    scheduler.py     in-process daily Gmail scan loop
+  guardrails/
+    input_validation.py  length / sanitize / prompt-injection flagging
+    rate_limit.py        requests-per-min + daily token budget
+  skills/              one SKILL.md per agent (coach, daily_moves, job_match, gmail_tracking)
   routers/
     resume.py        upload / list / activate / delete resumes
     profile.py       edit the ACTIVE resume (mind map CRUD)
-    jobs.py          catalog, AI evaluate, tracker, prep-by-round
-    dashboard.py     fast stats, moves, top matches
-    coach.py         chat + "what I know about you"
+    jobs.py          catalog, evaluate (→ match agent), tracker, prep-by-round
+    dashboard.py     fast stats, moves (→ moves agent), top matches
+    coach.py         chat (→ coach agent, behind guardrails)
+    agents.py        agent status, manual Gmail scan, scan log, moves refresh
 frontend/src/
   App.jsx            tab shell + shared state
-  api.js             one API client
+  api.js             one API client (incl. /agents/* endpoints)
   components/        Dashboard, ResumesTab, MindMapEditable, JobsTab,
                      TrackerTab, CoachTab, Modal
 ```
@@ -47,6 +71,15 @@ frontend/src/
 Design choices (per "best architecture, no bloat"):
 - **Pluggable providers.** `get_parser()` / `get_llm()` pick the real or offline
   implementation from env vars; nothing else branches on it.
+- **Agents over the same seam.** `orchestrator.py` routes each call to the right
+  LangGraph agent when ready, else to the existing `get_llm()` path — so the
+  agentic upgrade preserved the pluggable design and the offline fallback.
+- **No supervisor (on purpose).** The four agents are triggered by unrelated
+  events and never collaborate within a turn, so a deterministic dispatcher is
+  enough; a supervisor would add a model round-trip for no routing benefit.
+- **Structured handoffs.** Agents return typed JSON envelopes, never bare text.
+- **Change-detected moves.** The moves agent fingerprints skills + experience +
+  tracker and skips the model entirely when nothing changed.
 - **Active-resume = profile.** The mind map reads and writes whichever resume is
   active, so multi-resume came free.
 - **Fast vs. accurate split.** Dashboard/top-matches use the instant heuristic;
@@ -60,7 +93,7 @@ You already have it installed. With your keys in `backend/.env`:
 ```bash
 # terminal 1 — backend
 cd backend
-pip install -r requirements.txt        # adds google-genai + llama-parse
+pip install -r requirements.txt        # google-genai, llama-parse + LangGraph stack
 uvicorn app.main:app --reload          # http://localhost:8000/docs
 
 # terminal 2 — frontend
@@ -81,6 +114,34 @@ Paste your keys and restart uvicorn. With both set: PDFs are parsed by
 LlamaParse and structured by Gemini; fit scores, questions, and coach replies
 are all Gemini. Leave either blank to fall back to the offline mock/heuristic for
 that feature — the app still runs end-to-end.
+
+## Agentic layer (LangGraph)
+
+The agents reuse your `GEMINI_API_KEY` as their LLM and are controlled by extra
+flags in `backend/.env` (all default-safe):
+
+```
+AGENTS_ENABLED=true              # master switch (needs GEMINI_API_KEY)
+LANGSMITH_API_KEY=...            # optional: traces every agent run
+LANGSMITH_PROJECT=resume-tracker
+GMAIL_MCP_ENABLED=false          # Gmail inbox → tracker auto-update
+GMAIL_DAILY_SCAN=false           # run the scan once a day in-process
+COACH_MAX_INPUT_CHARS=4000       # chat guardrails
+COACH_DAILY_TOKEN_BUDGET=200000
+COACH_MAX_REQUESTS_PER_MIN=12
+```
+
+- **No keys / packages?** Every route falls back to the heuristic/Gemini path —
+  the app is unchanged.
+- **Gmail tracking** needs a one-time Google OAuth and the Gmail MCP server.
+  Full walkthrough in [`backend/SETUP_AGENTS.md`](backend/SETUP_AGENTS.md).
+- **Inspect the agents:** `GET /api/agents/status`, `GET /api/health` (now
+  includes an `agents` block), and LangSmith (if keyed).
+- **Control endpoints:** `POST /api/agents/gmail/scan`, `GET /api/agents/gmail/log`,
+  `POST /api/agents/moves/refresh`.
+
+Architecture and the no-supervisor rationale live in
+[`backend/AGENTS.md`](backend/AGENTS.md).
 
 ## If AI features "aren't working"
 
@@ -110,5 +171,10 @@ that feature — the app still runs end-to-end.
 ## Still placeholders (by request)
 
 - **Tailor my resume** button (Jobs dialog) — non-functional.
-- **Auto-Track with Gmail** toggle (Tracker) — stores state only; no inbox is
-  read. Real watch-and-advance logic goes in `routers/jobs.py` (`PATCH /jobs`).
+
+### No longer a placeholder
+- **Auto-Track with Gmail** is now wired to the `gmail_agent`: the toggle flags a
+  job for the daily inbox scan, which reads recent mail via the Gmail MCP and
+  auto-advances the card's status (forward-only, ≥0.6 confidence; rejections
+  anytime). It stays inert until you complete the Gmail MCP setup in
+  `backend/SETUP_AGENTS.md`. Trigger a scan now with `POST /api/agents/gmail/scan`.
