@@ -14,14 +14,16 @@ _lock = threading.Lock()
 
 
 def _empty() -> dict:
-    return {"profile": Profile().model_dump(), "resumes": [], "jobs": []}
+    return {"profile": Profile().model_dump(), "resumes": [], "jobs": [],
+            "agent_state": {}}
 
 
 def _migrate(data: dict) -> dict:
     if "profile" in data and "resumes" in data and \
             all("skills" not in r for r in data["resumes"]):
         data.setdefault("jobs", [])
-        return data  # already V3
+        data.setdefault("agent_state", {})  # V4: agent memory (moves cache, gmail log)
+        return data  # already V3/V4
 
     profile = {"summary": "", "skills": [], "experiences": []}
     resumes_meta: list[dict] = []
@@ -52,7 +54,8 @@ def _migrate(data: dict) -> dict:
         profile["skills"] = p.get("skills", [])
         profile["experiences"] = p.get("experiences", [])
 
-    return {"profile": profile, "resumes": resumes_meta, "jobs": data.get("jobs", [])}
+    return {"profile": profile, "resumes": resumes_meta, "jobs": data.get("jobs", []),
+            "agent_state": data.get("agent_state", {})}
 
 
 def _read() -> dict:
@@ -173,3 +176,19 @@ def delete_job(job_id: str) -> bool:
         data["jobs"] = [j for j in data["jobs"] if j["id"] != job_id]
         _write(data)
         return len(data["jobs"]) < before
+
+
+# --- Agent state --------------------------------------------------------- #
+# Small key/value bag the agents use as durable memory: the daily-moves cache
+# (last fingerprint + moves) and the Gmail scan log. Kept here so the JSON file
+# stays the single source of truth.
+def get_agent_state(key: str, default=None):
+    with _lock:
+        return _read().get("agent_state", {}).get(key, default)
+
+
+def save_agent_state(key: str, value) -> None:
+    with _lock:
+        data = _read()
+        data.setdefault("agent_state", {})[key] = value
+        _write(data)

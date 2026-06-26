@@ -11,6 +11,7 @@ import hashlib
 from fastapi import APIRouter, HTTPException, Query
 
 from .. import store
+from ..agents import orchestrator
 from ..catalog import CATALOG, get_catalog_job
 from ..models import (CatalogJob, Job, JobIn, JobPatch, Profile, ROUNDS,
                       ScoreBreakdown, ScoreRequest)
@@ -37,7 +38,8 @@ def _score_catalog(cat_id: str, title: str, description: str, profile: Profile) 
     cached = _eval_cache.get(key)
     if cached is not None:
         return cached
-    sb = get_llm().score(profile, title, description)
+    # Route through the match_agent (falls back to get_llm() when agents are off).
+    sb, _ = orchestrator.score(profile, title, description)
     # Cache only real AI results so the app auto-upgrades from the offline
     # fallback to Gemini once quota returns (instead of caching a fallback).
     if sb.method == "llm":
@@ -61,8 +63,9 @@ def evaluate_catalog(cat_id: str) -> ScoreBreakdown:
 
 @router.post("/score", response_model=ScoreBreakdown)
 def evaluate_arbitrary(req: ScoreRequest) -> ScoreBreakdown:
-    return get_llm().score(store.get_profile(), req.title,
-                           _desc_with_skills(req.description, req.skills))
+    sb, _ = orchestrator.score(store.get_profile(), req.title,
+                               _desc_with_skills(req.description, req.skills))
+    return sb
 
 
 # --- Tracker ------------------------------------------------------------- #
@@ -81,7 +84,7 @@ def apply_to_job(payload: JobIn) -> Job:
     if payload.catalog_id:
         job.score = _score_catalog(payload.catalog_id, payload.title, description, profile)
     else:
-        job.score = get_llm().score(profile, job.title, description)
+        job.score, _ = orchestrator.score(profile, job.title, description)
     return store.upsert_job(job)
 
 

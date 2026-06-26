@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from .. import store
+from ..agents import orchestrator
 from ..catalog import CATALOG
 from ..config import get_settings
 from ..services.llm import HeuristicLLM
@@ -32,6 +33,31 @@ def dashboard() -> dict:
     tracked = [j.score.score for j in jobs if j.score]
     avg_fit = round(sum(tracked) / len(tracked)) if tracked \
         else (top_matches[0]["score"] if top_matches else 0)
+
+    # The moves_agent owns the "3 moves for today" when agents are active. It
+    # only calls the model when skills/experience/tracker changed (otherwise it
+    # returns its cache), so the dashboard stays cheap. Empty => agents off, so
+    # fall through to the instant heuristic below.
+    agent_moves, _changed, _env = orchestrator.moves(profile, jobs)
+    if agent_moves:
+        moves = agent_moves
+        recent = [f"{j.status.value} · {j.title} at {j.company}" for j in jobs[-4:][::-1]] \
+            or ["No activity yet — apply to a job to get started."]
+        return {
+            "name": s.user_name,
+            "has_active_resume": has_profile,
+            "resume_parsed": len(resumes) > 0,
+            "resume_count": len(resumes),
+            "skills_count": len(profile.skills),
+            "experiences_count": len(profile.experiences),
+            "jobs_count": len(jobs),
+            "avg_fit": avg_fit,
+            "top_matches": top_matches,
+            "moves": moves[:3],
+            "moves_source": "agent",
+            "recent_activity": recent,
+            "providers": {"gemini": s.gemini_enabled, "llamaparse": s.llama_enabled},
+        }
 
     moves: list[str] = []
     if top_matches and top_matches[0]["missing"]:
@@ -67,6 +93,7 @@ def dashboard() -> dict:
         "avg_fit": avg_fit,
         "top_matches": top_matches,
         "moves": moves[:3],
+        "moves_source": "heuristic",
         "recent_activity": recent,
         "providers": {"gemini": s.gemini_enabled, "llamaparse": s.llama_enabled},
     }
