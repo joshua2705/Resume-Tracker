@@ -1,3 +1,5 @@
+#NEED TO ADD : 1 line in the readme about workflow choice
+
 # Resume Tracker
 
 A career copilot: upload resumes → build an editable mind map of your skills &
