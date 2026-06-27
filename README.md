@@ -159,7 +159,21 @@ Design choices (per "best architecture, no bloat"):
 
 ## Run it
 
-You already have it installed. With your keys in `backend/.env`:
+**Requirements:** Python 3.10+ and Node.js 18+.
+
+```bash
+# terminal 1 — backend
+cd backend
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env          # then add your GEMINI_API_KEY
+uvicorn app.main:app --reload
+
+# terminal 2 — frontend
+cd frontend
+npm install
+npm run dev
+```
 
 ```bash
 # terminal 1 — backend
