@@ -19,6 +19,77 @@ the original heuristic/Gemini path and the app still runs offline. See
 
 ## Screens
 
+## Deliverable 1 — Agentic workflow
+
+**Decision sequence.** When the daily scan runs (or `POST /api/agents/gmail/scan`),
+the **Gmail Auto-Track agent** reads recent inbox messages for each tracked
+company, classifies the latest relevant email, and proposes a **forward-only**
+application-stage update — committed only at **confidence ≥ 0.6**.
+
+**Why an agent, not a workflow.** Email phrasing varies without bound (invites,
+assessments, soft rejections, "kept on file"), so the classify-and-decide step
+needs model judgement at runtime rather than hardcoded rules. The other jobs
+(match scoring, daily moves) are deterministic workflows by design — see
+`backend/AGENTS.md`.
+
+**Anthropic pattern.** **Routing** (classify intent → branch to a stage
+decision), executed inside a tool-using ReAct loop over the Gmail MCP.
+
+**Success metric (measured by the test suite).** The Gmail writer must be
+forward-only and confidence-gated (acts only at ≥ 0.6), never regress a stage,
+and never crash on a malformed proposal. Measured by `gmail_state_integrity` in
+`tests/robustness_test.py`: **5/5 (100%)** in the latest run.
+
+## Deliverable 2 — Architecture
+
+**Model chosen: ReAct (single agent) per task — composed by a deterministic
+dispatcher, not a Supervisor.** Each agent is a scoped ReAct loop (or a tiny
+state graph); `orchestrator.py` routes each event to exactly one agent.
+
+```mermaid
+flowchart LR
+  RT["FastAPI routers"]
+  SC["Scheduler (daily timer)"]
+  OR["orchestrator.py<br/>deterministic dispatcher<br/>agents_ready ? agent : fallback"]
+  CA["coach_agent<br/>ReAct + tools"]
+  MA["match_agent<br/>prepare to score"]
+  MO["moves_agent<br/>detect-change to cache"]
+  GA["gmail_agent<br/>ReAct + routing"]
+  TL["store tools"]
+  MCP["Gmail MCP<br/>search / read (read-only)"]
+  GR["guardrails<br/>input_validation, rate_limit"]
+  EV["AgentEnvelope<br/>typed JSON + meta"]
+  LS[("LangSmith trace")]
+
+  RT --> OR
+  SC --> OR
+  GR -. wraps .- CA
+  OR -->|chat| CA
+  OR -->|score| MA
+  OR -->|dashboard| MO
+  OR -->|scan| GA
+  CA --> TL
+  MA --> TL
+  MO --> TL
+  GA --> MCP
+  GA --> TL
+  CA --> EV
+  MA --> EV
+  MO --> EV
+  GA --> EV
+  EV --> LS
+```
+
+**Justification.** Each job is a bounded, scoped task triggered by an unrelated
+event, so one ReAct agent per task is the right granularity; a deterministic
+dispatcher routes events with no extra model round-trip.
+
+**Trade-off accepted.** ReAct is brittle as the tool count grows and offers
+limited in-turn parallelism. We accept this because each agent's tool set is
+small and the agents never run concurrently within a turn; the typed envelopes
+let us promote the dispatcher to a LangGraph Supervisor later without touching
+the agents.
+
 | Tab | What it does |
 | --- | --- |
 | **Dashboard** | Greets you by name, summarizes stats, and lists your 3 "moves for today" — produced by the **moves agent**, which only recomputes when your skills, experience, or tracker actually change (otherwise it serves a cache). |
