@@ -1,7 +1,6 @@
-# Setting up the agentic layer — what YOU need to do
+# Setting up the agentic layer
 
 Three things to configure: (1) install deps, (2) LangSmith, (3) Gmail MCP.
-Everything is optional — skip any part and that feature falls back gracefully.
 
 ---
 
@@ -33,8 +32,6 @@ or `GET /api/agents/status`.
    ```
 4. Restart the backend. Every agent run now appears in LangSmith under the
    `resume-tracker` project (inputs, tool calls, tokens, latency, errors).
-
-Nothing else is needed — tracing is automatic once the key is set.
 
 ---
 
@@ -71,7 +68,7 @@ GMAIL_MCP_ARGS=-y,@gongrzhe/server-gmail-autoauth-mcp
 GMAIL_DAILY_SCAN=true          # run automatically once a day while the backend is up
 GMAIL_SCAN_LOOKBACK_DAYS=1
 ```
-> Using a different Gmail MCP? Just change `GMAIL_MCP_COMMAND` / `GMAIL_MCP_ARGS`.
+> To use a different Gmail MCP, just change `GMAIL_MCP_COMMAND` / `GMAIL_MCP_ARGS`.
 
 ### d. Use it
 - In the app, turn on **Auto-Track with Gmail** on the jobs you want scanned
