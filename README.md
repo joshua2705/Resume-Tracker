@@ -139,7 +139,18 @@ frontend/src/
                      TrackerTab, CoachTab, Modal
 ```
 
-Design choices (per "best architecture, no bloat"):
+Four single-responsibility agents behind a thin orchestrator, No supervisor; the four agents are triggered by unrelated events and never collaborate within a turn, so a supervisor would add a model round-trip for zero routing benefit. orchestrator.py is a deterministic dispatcher instead.
+
+match_agent — graph prepare → score; Gemini structured output → MatchResult. Routed into /api/score and catalog evaluate, falling back to your heuristic scorer.
+
+moves_agent — graph detect_change → generate | cache. It fingerprints skills + experience + tracker; if nothing changed it returns the cached 3 moves and makes no model call (your "only change if something changed" requirement).
+
+coach_agent — LangGraph ReAct agent with 4 tools (skills, experience, tracked jobs, a job's description). It is not pre-loaded with your data — it decides which tool to call, fetching a specific job's JD only when the chat focuses on it.
+
+gmail_agent — async, talks to the Gmail MCP, scans recent mail per tracked company, classifies intent, and auto-applies status updates (forward-only, ≥0.6 confidence, rejection anytime). Runs daily via an in-process scheduler or POST /api/agents/gmail/scan.
+
+
+Design choices:
 - **Pluggable providers.** `get_parser()` / `get_llm()` pick the real or offline
   implementation from env vars; nothing else branches on it.
 - **Agents over the same seam.** `orchestrator.py` routes each call to the right
