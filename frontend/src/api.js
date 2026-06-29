@@ -46,4 +46,11 @@ export const api = {
   coachContext: () => req("/coach/context"),
   coach: (messages, jobId) =>
     req("/coach", { method: "POST", headers: J, body: JSON.stringify({ messages, job_id: jobId || null }) }),
+
+  // Agents (LangGraph)
+  agentStatus: () => req("/agents/status"),
+  gmailScan: (lookbackDays) =>
+    req(`/agents/gmail/scan${lookbackDays ? `?lookback_days=${lookbackDays}` : ""}`, { method: "POST" }),
+  gmailLog: () => req("/agents/gmail/log"),
+  refreshMoves: () => req("/agents/moves/refresh", { method: "POST" }),
 };

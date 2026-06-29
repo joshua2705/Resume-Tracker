@@ -17,3 +17,8 @@ frontend/dist/
 # OS / editor
 .DS_Store
 .vscode/
+
+# Deliverable-7 test runtime artifacts (results/*.json ARE committed)
+tests/data/_runtime_store.json
+tests/_probe_*.txt
+.testvenv/

@@ -1,0 +1,425 @@
+{
+  "category": "explainability",
+  "n_decisions_sampled": 9,
+  "trace_complete": 9,
+  "trace_complete_pct": 100.0,
+  "required_field_coverage_pct": {
+    "agent_id": 100.0,
+    "method": 100.0,
+    "model": 100.0,
+    "latency_ms": 100.0,
+    "tokens_used": 100.0,
+    "timestamp": 100.0,
+    "model_output": 100.0,
+    "rationale": 100.0,
+    "fallback_flag": 100.0
+  },
+  "raw_input_in_envelope_pct": 100.0,
+  "raw_input_gap_note": "The envelope omits raw input; it is captured in LangSmith (trace_project set). Recommend an input_digest field for self-contained audits.",
+  "user_explanation_distribution": {
+    "clear": 9,
+    "partial": 1,
+    "opaque": 0
+  },
+  "user_explanation_samples": [
+    {
+      "surface": "match.reasoning",
+      "text": "The candidate possesses all core technical skills required (SQL, Python, Pandas, Excel) and has direct, relevant experience as a Data Analyst Intern, where they built SQL dashboards and automated reports. This aligns well with the job's focus on data pulling, analysis, and reporting. While specific experience with Tableau or Looker is not explicitly mentioned, the experience building SQL dashboards demonstrates a foundational understanding of data visualization and reporting. The role is entry-level, and the candidate's internship and open-source contributions are highly relevant.",
+      "grade": "clear"
+    },
+    {
+      "surface": "match.reasoning",
+      "text": "The candidate is a strong fit for this entry-level backend role, demonstrating proficiency in Python, REST APIs (specifically FastAPI), SQL, Git, and unit testing. Their open-source contributions directly align with the job's bonus requirements and practical experience in shipping features. While specific experience with Django, PostgreSQL, Docker, and cloud platforms is not explicitly stated, their foundational skills and relevant project work make them a highly promising candidate.",
+      "grade": "clear"
+    },
+    {
+      "surface": "match.reasoning",
+      "text": "The candidate demonstrates strong analytical skills with experience in SQL, Python for reporting, and Excel, directly matching a key requirement of the APM role. Their technical background (Python, Git, REST APIs, FastAPI) is valuable for understanding engineering. However, they lack explicit experience in core product management functions such as defining requirements, running user interviews, or coordinating engineering and design teams. While open-source contribution shows initiative, direct project or team leadership experience is not evident. Explicit evidence for 'clear written communication' and 'structured thinking' is also missing, which are noted as key skills.",
+      "grade": "clear"
+    },
+    {
+      "surface": "match.reasoning",
+      "text": "The candidate possesses strong foundational skills in Python, data manipulation with Pandas, and experience with API development (FastAPI), which are valuable for an ML engineering role, particularly for data preprocessing and model deployment. Their data analyst internship also suggests good data intuition. However, the profile lacks explicit experience with core machine learning frameworks like PyTorch or scikit-learn, and there's no direct evidence of understanding core ML concepts or experience in building and evaluating models, which are central to the job description. While a recent CS graduate, no specific ML coursework, Kaggle, or research projects are mentioned to bridge this gap.",
+      "grade": "clear"
+    },
+    {
+      "surface": "moves.text",
+      "text": "Apply to the 'Junior Data Analyst' position at 'Data Insights Corp.' on LinkedIn, ensuring your resume highlights your SQL and Pandas experience.",
+      "grade": "clear"
+    },
+    {
+      "surface": "moves.text",
+      "text": "Update your GitHub profile README to showcase your 'REST API' open-source contributions, linking to specific projects where applicable.",
+      "grade": "clear"
+    },
+    {
+      "surface": "moves.text",
+      "text": "Find and connect with one Data Analyst or Data Scientist on LinkedIn who works at a company you're interested in, and whose profile mentions 'Python' or 'SQL'.",
+      "grade": "clear"
+    },
+    {
+      "surface": "coach.reply",
+      "text": "(Offline coach — Gemini not connected.) For this, structure your answer as situation → action → result. You said: \"Help me prep for an interview.\". Lead with a concrete example and quantify the outcome.",
+      "grade": "clear"
+    },
+    {
+      "surface": "coach.reply",
+      "text": "Great! I see you have experience as a Data Analyst Intern at Acme Corp and as an Open-source contributor at GitHub.\n\nFor Acme Corp, \"Built SQL dashboards\" and \"Automated reports in Python\" are good, but they could be even stronger. Can you tell me about the *impact* of those actions? For example, di",
+      "grade": "clear"
+    },
+    {
+      "surface": "coach.reply",
+      "text": "(Offline coach — Gemini not connected.) For this, structure your answer as situation → action → result. You said: \"What roles fit me?\". Lead with a concrete example and quantify the outcome.",
+      "grade": "partial"
+    }
+  ],
+  "cold_read": {
+    "trace": {
+      "schema_version": "1.0",
+      "agent": "gmail_agent",
+      "ok": true,
+      "data": {
+        "scanned_companies": [
+          "Cloudpeak"
+        ],
+        "proposals": [
+          {
+            "job_id": "abc123",
+            "company": "Cloudpeak",
+            "old_status": "Applied",
+            "new_status": "Interviewing",
+            "confidence": 0.82,
+            "evidence_subject": "Interview invitation - Backend Engineer",
+            "evidence_snippet": "We'd love to schedule a 45-min technical interview...",
+            "email_date": "2026-06-25",
+            "thread_id": "t_98f2",
+            "applied": true
+          }
+        ],
+        "applied_count": 1,
+        "skipped_no_change": 0,
+        "errors": [],
+        "lookback_days": 1
+      },
+      "meta": {
+        "agent": "gmail_agent",
+        "model": "gemini-2.5-flash",
+        "method": "agent",
+        "fallback_used": false,
+        "latency_ms": 4200,
+        "tokens_used": 3800,
+        "trace_project": "resume-tracker",
+        "error": null,
+        "at": "2026-06-26T15:54:55.647852+00:00"
+      }
+    },
+    "blind_reconstruction": "gmail_agent scanned Cloudpeak (lookback 1d), found an 'Interview invitation' email (thread t_98f2, 2026-06-25) for job abc123, classified Applied->Interviewing at 0.82 confidence and applied it; a reviewer can open thread t_98f2 to verify.",
+    "reconstructable": true
+  },
+  "gdpr_article_22": {
+    "decisions_with_significant_effect": [
+      {
+        "decision": "match fit score",
+        "autonomous": false,
+        "note": "Advisory; the user decides whether to apply. Out of Art 22 scope."
+      },
+      {
+        "decision": "gmail auto-advance tracker status",
+        "autonomous": true,
+        "note": "Only solely-automated action. Reversible (drag card back), 0.6 confidence gate, forward-only, and each change stores old/new status, confidence, evidence subject+snippet, email date and threadId -> supports human appeal."
+      }
+    ],
+    "trace_supports_human_appeal": true
+  },
+  "langsmith_evidence": {
+    "available": true,
+    "project": "resume-tracker",
+    "count": 15,
+    "runs": [
+      {
+        "run_id": "019f04a4-253e-7993-82fe-fe9eeefe3de6",
+        "name": "should_continue",
+        "start_time": "2026-06-26 15:54:54.142562+00:00",
+        "total_tokens": 0,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-253e-7993-82fe-fe9eeefe3de6?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1f2a-7cc0-969f-fc862deca3a2",
+        "name": "ChatGoogleGenerativeAI",
+        "start_time": "2026-06-26 15:54:52.585960+00:00",
+        "total_tokens": 793,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1f2a-7cc0-969f-fc862deca3a2?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1f22-7bf0-887b-6348ea722746",
+        "name": "Prompt",
+        "start_time": "2026-06-26 15:54:52.577953+00:00",
+        "total_tokens": 0,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1f22-7bf0-887b-6348ea722746?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1f1e-7520-aa39-5e32e7c029e0",
+        "name": "RunnableSequence",
+        "start_time": "2026-06-26 15:54:52.573963+00:00",
+        "total_tokens": 793,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1f1e-7520-aa39-5e32e7c029e0?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1f18-7643-a951-e93d52e40369",
+        "name": "call_model",
+        "start_time": "2026-06-26 15:54:52.567949+00:00",
+        "total_tokens": 793,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1f18-7643-a951-e93d52e40369?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1f18-7643-a951-e9257b83926c",
+        "name": "agent",
+        "start_time": "2026-06-26 15:54:52.567949+00:00",
+        "total_tokens": 793,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1f18-7643-a951-e9257b83926c?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1f11-70d2-a007-606759e94b15",
+        "name": "get_user_skills",
+        "start_time": "2026-06-26 15:54:52.560969+00:00",
+        "total_tokens": 0,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1f11-70d2-a007-606759e94b15?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1f0f-7dd3-baa5-7865f36f71bf",
+        "name": "tools",
+        "start_time": "2026-06-26 15:54:52.558958+00:00",
+        "total_tokens": 0,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1f0f-7dd3-baa5-7865f36f71bf?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1f0c-78e3-b626-16cd7ebe0fa2",
+        "name": "should_continue",
+        "start_time": "2026-06-26 15:54:52.555952+00:00",
+        "total_tokens": 0,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1f0c-78e3-b626-16cd7ebe0fa2?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1c06-7cc2-81bf-05dbe289f484",
+        "name": "ChatGoogleGenerativeAI",
+        "start_time": "2026-06-26 15:54:51.782281+00:00",
+        "total_tokens": 527,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1c06-7cc2-81bf-05dbe289f484?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1c05-7a91-8a59-8b848e130776",
+        "name": "Prompt",
+        "start_time": "2026-06-26 15:54:51.781282+00:00",
+        "total_tokens": 0,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1c05-7a91-8a59-8b848e130776?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1c05-7a91-8a59-8b724ef94209",
+        "name": "RunnableSequence",
+        "start_time": "2026-06-26 15:54:51.781282+00:00",
+        "total_tokens": 527,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1c05-7a91-8a59-8b724ef94209?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1c04-7871-9bc4-b491f926d80c",
+        "name": "call_model",
+        "start_time": "2026-06-26 15:54:51.780283+00:00",
+        "total_tokens": 527,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1c04-7871-9bc4-b491f926d80c?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1c04-7871-9bc4-b48963c7d194",
+        "name": "agent",
+        "start_time": "2026-06-26 15:54:51.779283+00:00",
+        "total_tokens": 527,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1c04-7871-9bc4-b48963c7d194?poll=true"
+      },
+      {
+        "run_id": "019f04a4-1bfd-7f13-bd76-86cac1c6ec6d",
+        "name": "list_tracked_jobs",
+        "start_time": "2026-06-26 15:54:51.773404+00:00",
+        "total_tokens": 0,
+        "url": "https://smith.langchain.com/o/e7fdeb23-3337-4fd1-a400-2f5a4ed0690d/projects/p/1c1457d9-ac64-4b92-8761-11b7e49e4662/r/019f04a4-1bfd-7f13-bd76-86cac1c6ec6d?poll=true"
+      }
+    ]
+  },
+  "traces": [
+    {
+      "kind": "match",
+      "check": {
+        "agent_id": true,
+        "method": true,
+        "model": true,
+        "latency_ms": true,
+        "tokens_used": true,
+        "timestamp": true,
+        "model_output": true,
+        "fallback_flag": true,
+        "input_record": true,
+        "rationale": true,
+        "confidence": true,
+        "tool_provenance": true,
+        "_complete": true,
+        "_missing": []
+      }
+    },
+    {
+      "kind": "match",
+      "check": {
+        "agent_id": true,
+        "method": true,
+        "model": true,
+        "latency_ms": true,
+        "tokens_used": true,
+        "timestamp": true,
+        "model_output": true,
+        "fallback_flag": true,
+        "input_record": true,
+        "rationale": true,
+        "confidence": true,
+        "tool_provenance": true,
+        "_complete": true,
+        "_missing": []
+      }
+    },
+    {
+      "kind": "match",
+      "check": {
+        "agent_id": true,
+        "method": true,
+        "model": true,
+        "latency_ms": true,
+        "tokens_used": true,
+        "timestamp": true,
+        "model_output": true,
+        "fallback_flag": true,
+        "input_record": true,
+        "rationale": true,
+        "confidence": true,
+        "tool_provenance": true,
+        "_complete": true,
+        "_missing": []
+      }
+    },
+    {
+      "kind": "match",
+      "check": {
+        "agent_id": true,
+        "method": true,
+        "model": true,
+        "latency_ms": true,
+        "tokens_used": true,
+        "timestamp": true,
+        "model_output": true,
+        "fallback_flag": true,
+        "input_record": true,
+        "rationale": true,
+        "confidence": true,
+        "tool_provenance": true,
+        "_complete": true,
+        "_missing": []
+      }
+    },
+    {
+      "kind": "moves",
+      "check": {
+        "agent_id": true,
+        "method": true,
+        "model": true,
+        "latency_ms": true,
+        "tokens_used": true,
+        "timestamp": true,
+        "model_output": true,
+        "fallback_flag": true,
+        "input_record": true,
+        "rationale": true,
+        "confidence": null,
+        "tool_provenance": null,
+        "_complete": true,
+        "_missing": []
+      }
+    },
+    {
+      "kind": "coach",
+      "check": {
+        "agent_id": true,
+        "method": true,
+        "model": true,
+        "latency_ms": true,
+        "tokens_used": true,
+        "timestamp": true,
+        "model_output": true,
+        "fallback_flag": true,
+        "input_record": true,
+        "rationale": true,
+        "confidence": null,
+        "tool_provenance": true,
+        "_complete": true,
+        "_missing": []
+      }
+    },
+    {
+      "kind": "coach",
+      "check": {
+        "agent_id": true,
+        "method": true,
+        "model": true,
+        "latency_ms": true,
+        "tokens_used": true,
+        "timestamp": true,
+        "model_output": true,
+        "fallback_flag": true,
+        "input_record": true,
+        "rationale": true,
+        "confidence": null,
+        "tool_provenance": true,
+        "_complete": true,
+        "_missing": []
+      }
+    },
+    {
+      "kind": "coach",
+      "check": {
+        "agent_id": true,
+        "method": true,
+        "model": true,
+        "latency_ms": true,
+        "tokens_used": true,
+        "timestamp": true,
+        "model_output": true,
+        "fallback_flag": true,
+        "input_record": true,
+        "rationale": true,
+        "confidence": null,
+        "tool_provenance": true,
+        "_complete": true,
+        "_missing": []
+      }
+    },
+    {
+      "kind": "gmail",
+      "check": {
+        "agent_id": true,
+        "method": true,
+        "model": true,
+        "latency_ms": true,
+        "tokens_used": true,
+        "timestamp": true,
+        "model_output": true,
+        "fallback_flag": true,
+        "input_record": true,
+        "rationale": true,
+        "confidence": true,
+        "tool_provenance": true,
+        "_complete": true,
+        "_missing": []
+      }
+    }
+  ],
+  "_meta": {
+    "mode": "online-live",
+    "model": "gemini-2.5-flash",
+    "langsmith_project": "resume-tracker",
+    "live": true
+  }
+}
