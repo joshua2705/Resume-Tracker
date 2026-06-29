@@ -1,4 +1,4 @@
-# /tests — Deliverable 7 (robustness, bias, carbon, explainability) — LIVE
+# Tests : robustness, bias, carbon, explainability
 
 These tests run **online** against the real Gemini model configured in
 `backend/.env`, through the actual LangGraph agents, with every run traced to
